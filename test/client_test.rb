@@ -92,6 +92,16 @@ class ClientTest < TinyTds::TestCase
       end
     end
     
+    should 'not have problems if the connection times out' do
+      client = TinyTds::Client.new(connection_options.merge(:timeout => 1))
+      
+      client.execute('SELECT 1 AS [one]').do
+      sleep 60
+      assert_nothing_raised do
+        client.execute('SELECT 2 as [two]').do
+      end
+    end
+    
     should 'raise TinyTds exception with wrong :username' do
       options = connection_options.merge :username => 'willnotwork'
       action = lambda { TinyTds::Client.new(options) }
